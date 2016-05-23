@@ -10,17 +10,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
+using Newtonsoft.Json;
 
 namespace POSserver
 {
     public class ClientHandler
     {
+        DBManager dbmanager = DBManager.Instance;
         public Socket clientSocket;
         public void runClient()
         {
             NetworkStream stream = null;
             StreamReader reader = null;
-
+            string str = null;
+            string restaurant_name = null;
+            LinkedList<Menu> menu_list = null;
             try
             {
                 //client의 접속이 올때까지 block되는 부분(Thread)
@@ -35,21 +39,37 @@ namespace POSserver
                 Encoding encode = System.Text.Encoding.GetEncoding("ks_c_5601-1987");
                 reader = new StreamReader(stream, encode);
 
+                //getting restuarant_id
+               
+                
+                Console.WriteLine("hello_client");
+                
                 while (true)
                 {
-                    string str = reader.ReadLine();
+                    str = reader.ReadLine();
                     if (str.IndexOf("<EOF>") > -1)
                     {
                         Console.WriteLine("Bye Bye");
                         break;
                     }
-                    Console.WriteLine(str);
-                    str += "\r\n";
+                    Console.WriteLine("data_get : " + str);
+                    restaurant_name = dbmanager.GetRestaurantNameFromId(str);
+                    menu_list = dbmanager.GetRestaurantMenu(restaurant_name);
+                    //sending restuarant_menu
+                    foreach (Menu m in menu_list)
+                    {
+                        string menu_data_json = JsonConvert.SerializeObject(m);
+                        menu_data_json += "\r\n";
+                        byte[] dataWrite = Encoding.Default.GetBytes(menu_data_json);
+                        stream.Write(dataWrite, 0, dataWrite.Length);
 
-                    byte[] dataWrite = Encoding.Default.GetBytes(str);
 
-                    stream.Write(dataWrite, 0, dataWrite.Length);
+                    }
+                    string end_menu = "end_menu\r\n";
+                    byte[] end_menu_dataWrite = Encoding.Default.GetBytes(end_menu);
+                    stream.Write(end_menu_dataWrite, 0, end_menu_dataWrite.Length);
                 }
+                
             }
             catch (Exception e)
             {
