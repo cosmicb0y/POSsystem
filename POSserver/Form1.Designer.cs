@@ -45,19 +45,14 @@
             this.Column5 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.결제여부 = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.orderBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
-
             this.restaurantBindingSource = new System.Windows.Forms.BindingSource(this.components);
-
             this.orderBindingSource = new System.Windows.Forms.BindingSource(this.components);
-
             this.restaurantBindingSource1 = new System.Windows.Forms.BindingSource(this.components);
-
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.orderBindingSource1)).BeginInit();
-
             ((System.ComponentModel.ISupportInitialize)(this.restaurantBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.orderBindingSource)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.restaurantBindingSource1)).BeginInit();
@@ -209,7 +204,6 @@
             // orderBindingSource1
             // 
             this.orderBindingSource1.DataMember = "order";
-            
             // 
             // Form1
             // 
@@ -220,8 +214,8 @@
             this.Controls.Add(this.radioButton1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.listBox1);
-            this.Controls.Add(this.panel1);
             this.Controls.Add(this.panel2);
+            this.Controls.Add(this.panel1);
             this.Name = "Form1";
             this.Text = "Form1";
             this.Load += new System.EventHandler(this.Form1_Load);
@@ -230,7 +224,6 @@
             this.panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView2)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.orderBindingSource1)).EndInit();
-
             ((System.ComponentModel.ISupportInitialize)(this.restaurantBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.orderBindingSource)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.restaurantBindingSource1)).EndInit();

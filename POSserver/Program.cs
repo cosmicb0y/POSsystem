@@ -64,13 +64,11 @@ namespace POSserver
 
     public class EchoServer
     {
-        public static string cn = "Server=localhost;Database=posdb;Uid=lee;Pwd=1212;Charset=utf8";
-        public static MySqlConnection conn;
+        DBManager dbmanager = DBManager.Instance;
         public static void Main(string[] args)
         {
+
             new EchoServer().ServerThread();
-            conn = new MySqlConnection(cn);
-            conn.Open();
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
             Application.Run(new Form1());

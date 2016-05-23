@@ -13,81 +13,33 @@ namespace POSserver
 {
     public partial class Form1 : Form
     {
-       
+        DBManager dbmanager = DBManager.Instance;
         String restaurant_id="1"; //초기값은 1
         public Form1()
         {
             InitializeComponent();
-            
         }
-        private MySqlDataReader get_Reader_from_query(String query)
-        {
-            MySqlCommand command = new MySqlCommand(query, EchoServer.conn);
-            return command.ExecuteReader();
-        }
-
+        
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
+            //When you select restaurant_name, It should update dataGridView.
             dataGridView1.Rows.Clear();
             dataGridView2.Rows.Clear();
-            String str = listBox1.SelectedItem.ToString();
-            MySqlDataReader reader = get_Reader_from_query("select restaurant_id from restaurant where restaurant_name='" + str + "'");
+            String restaurant_name = listBox1.SelectedItem.ToString();
+            LinkedList<Menu> menulist = dbmanager.GetRestaurantMenu(restaurant_name);
 
-            while (reader.Read())//리더에 데이터가 있으면.
+            foreach (Menu m in menulist)
             {
-                restaurant_id=reader[0].ToString();
-            }
-            reader.Close();
-            //메뉴불러오기
-            reader = get_Reader_from_query("select * from menu where restaurant_id='"+ restaurant_id + "'");
-            while (reader.Read())//리더에 데이터가 있으면.
-            {
-                string[] row = { reader[2].ToString(), reader[3].ToString() };
+                string[] row = { m.name, m.price };
                 dataGridView1.Rows.Add(row);
             }
-            reader.Close();
+
             //주문목록 불러오기
-
-            reader = get_Reader_from_query("select * from order_ where restaurant_id='" + restaurant_id + "'");
-            String[,] row_arr = new String[reader.FieldCount + 1, 5];
-            int i = 0;
-            while (reader.Read())//리더에 데이터가 있으면.
+            LinkedList<OrderItem> order_list = dbmanager.GetRestaurantOrderList(restaurant_name);
+            foreach (OrderItem m in order_list)
             {
-                String payment_index = reader[5].ToString();
-
-                //0 : 결제대기 1: 결제완료 2:주문취소
-                if (payment_index.Equals("0"))
-                {
-                    payment_index = "결제대기";
-                }
-                else if (payment_index.Equals("1"))
-                {
-                    payment_index = "결제완료";
-                }
-                else if (payment_index.Equals("2"))
-                {
-                    payment_index = "주문취소";
-                }
-                row_arr[i, 0] = reader[0].ToString();
-                row_arr[i, 1] = reader[2].ToString();
-                row_arr[i, 2] = reader[4].ToString();
-                row_arr[i, 3] = reader[3].ToString();
-                row_arr[i, 4] = payment_index;
-                i++;
-
-            }
-            reader.Close();
-            for (int j = 0; j < i - 1; j++)
-            {
-                reader = get_Reader_from_query("select menu_name from menu where menu_id='" + row_arr[j, 1] + "'");
-                while (reader.Read())//리더에 데이터가 있으면.
-                {
-                    row_arr[j, 1] = reader[0].ToString();
-                }
-                reader.Close();
-
-                string[] row_str = { row_arr[j, 0], row_arr[j, 1], row_arr[j, 2], row_arr[j, 3], row_arr[j, 4] };
-                dataGridView2.Rows.Add(row_str);
+                string[] row = { m.order_id,m.menu_name, m.order_num,m.order_time,m.ispayment };
+                dataGridView2.Rows.Add(row);
             }
 
         }
@@ -120,14 +72,11 @@ namespace POSserver
         {
             // TODO: 이 코드는 데이터를 'posdbDataSet1.order' 테이블에 로드합니다. 필요한 경우 이 코드를 이동하거나 제거할 수 있습니다.
             //this.orderTableAdapter1.Fill(this.posdbDataSet1.order);
-
-            MySqlDataReader reader = get_Reader_from_query("select restaurant_name from restaurant");
-
-            while (reader.Read())//리더에 데이터가 있으면.
+            LinkedList<string> list = dbmanager.GetRestaurantName();
+            foreach(string m in list)
             {
-                listBox1.Items.Add(reader[0].ToString());
+                listBox1.Items.Add(m);
             }
-            reader.Close();
             listBox1.SelectedIndex = 0;//초기값은 첫번째 선택
             radioButton1.Select(); //메뉴버튼선택
         }
