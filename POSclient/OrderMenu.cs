@@ -5,16 +5,15 @@ using System.Text;
 using System.Threading.Tasks;
 
 
-class Menu
+class OrderMenu
 {
     public string name { get; set; }
-    public string price { get; set; }
+    public int num { get; set; }
 
-    public Menu(string name,string price)
+    public OrderMenu(string name, int num)
     {
         this.name = name;
-        this.price = price;
+        this.num = num;
     }
-
 }
 

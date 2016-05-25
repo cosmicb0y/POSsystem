@@ -11,7 +11,7 @@ class POSclient
     static void Main(string[] args)
     {
         TcpClient client = null;
-        const int table_num = 1;
+        OrderList orderlist = new OrderList();
         try
         {
             //LocalHost에 지정포트로 TCP Connection생성 후 데이터 송수신 스트림 얻음
@@ -44,13 +44,12 @@ class POSclient
             menuData = readerStream.ReadLine();
             Console.WriteLine("JSON_DATA : " + menuData);
             //Menu menu = JsonConvert.DeserializeObject<Menu>(menuData);
-            LinkedList<Menu> menu_list = JsonConvert.DeserializeObject<LinkedList<Menu>>(menuData);
+            Menu[] menu_list = JsonConvert.DeserializeObject<Menu[]>(menuData);
             foreach (Menu m in menu_list)
             {
                 Console.WriteLine(i + ". " + m.name + "\t\t|\t" + m.price + "원");
                 i++;
             }
-            //dataToSend = Console.ReadLine();
             
             while (true)
             {
@@ -64,12 +63,21 @@ class POSclient
                     
                     while (true)
                     {
-                        Console.WriteLine("번호 : (종료 : -1)");
+                        Console.WriteLine("번호 : (주문완료 : -1)");
                         menu_what = (Console.ReadLine());
-                        if (menu_what.Equals("-1")) break;
+                        if (menu_what.Equals("-1"))
+                        {
+                            string menu_data_json = JsonConvert.SerializeObject(orderlist);
+                            Console.WriteLine("menu_data_json: "+ menu_data_json);
+                            menu_data_json += "\r\n";
+                            data = Encoding.UTF8.GetBytes(menu_data_json);
+                            writeStream.Write(data, 0, data.Length);
+                            break;
+                        }
+                        menu_what=menu_list[Convert.ToInt32(menu_what)].name;
                         Console.WriteLine("수량 : ");
                         menu_num = Convert.ToInt32(Console.ReadLine());
-
+                        orderlist.addMenu(menu_what, menu_num);
                     }
                 }
                 else if (select_index == 2)
