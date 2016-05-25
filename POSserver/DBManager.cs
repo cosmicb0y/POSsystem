@@ -28,6 +28,19 @@ namespace POSserver
         }
         private string cn = "Server=localhost;Database=posdb;Uid=lee;Pwd=1212;Charset=utf8";
         public MySqlConnection conn;
+        public String GetRestaurantNameFromId(string id)
+        {
+            String query = "select restaurant_name from restaurant where restaurant_id='" + id + "'";
+            MySqlCommand command = new MySqlCommand(query, conn);
+            MySqlDataReader reader = command.ExecuteReader();
+            string restaurant_name=null;
+            while (reader.Read())//리더에 데이터가 있으면.
+            {
+                restaurant_name=(reader["restaurant_name"].ToString());
+            }
+            reader.Close();
+            return restaurant_name;
+        }
         public LinkedList<string> GetRestaurantName()
         {
             String query = "select restaurant_name from restaurant";

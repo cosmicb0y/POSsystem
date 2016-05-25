@@ -22,7 +22,7 @@ namespace POSserver
         
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            //When you select restaurant_name, It should update dataGridView.
+            //updating dataGridView when you select restaurant_name.
             dataGridView1.Rows.Clear();
             dataGridView2.Rows.Clear();
             String restaurant_name = listBox1.SelectedItem.ToString();

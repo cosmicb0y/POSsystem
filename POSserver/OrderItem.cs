@@ -8,6 +8,9 @@ namespace POSserver
 {
     class OrderItem
     {
+        public String restaurant_id { get; set; }
+        public String menu_id { get; set; }
+        public String table_num { get; set; }
         public String order_id { get; set; }
         public String menu_name { get; set; }
         public String order_num { get; set; }
