@@ -32,7 +32,7 @@ class POSclient
 
             string str = "{ \"restaurant_name\":\"봉구스밥버거\",\"restaurant_id\":1,\"table_num\":4}";
             str += "\r\n";
-            byte[] data = Encoding.Default.GetBytes(str);
+            byte[] data = Encoding.UTF8.GetBytes(str);
             writeStream.Write(data, 0, data.Length);
             int i = 1;
 
