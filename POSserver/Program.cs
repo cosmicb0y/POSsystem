@@ -11,6 +11,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Threading;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 
 namespace POSserver
 {
@@ -25,6 +26,8 @@ namespace POSserver
             string str = null;
             string restaurant_name = null;
             LinkedList<Menu> menu_list = null;
+            JObject jobj = null;
+            string table_num = null;
             try
             {
                 //client의 접속이 올때까지 block되는 부분(Thread)
@@ -36,7 +39,7 @@ namespace POSserver
 
 
 
-                Encoding encode = System.Text.Encoding.GetEncoding("ks_c_5601-1987");
+                Encoding encode = System.Text.Encoding.GetEncoding("utf-8");
                 reader = new StreamReader(stream, encode);
 
                 //getting restuarant_id
@@ -46,27 +49,29 @@ namespace POSserver
                 
                 while (true)
                 {
-                    str = reader.ReadLine();
+                    str = reader.ReadLine(); // 최조 접속 ex) {"restaurant_name":"김밥천국","restaurant_id":1,"table_num":4}
                     if (str.IndexOf("<EOF>") > -1)
                     {
                         Console.WriteLine("Bye Bye");
                         break;
                     }
-                    Console.WriteLine("data_get : " + str);
-                    restaurant_name = dbmanager.GetRestaurantNameFromId(str);
+                    jobj = JObject.Parse(str);
+                    string restaurant_id = jobj["restaurant_id"].ToString();
+                    table_num = jobj["table_num"].ToString();
+                    Console.WriteLine("restaurant_id : " + restaurant_id);
+                    restaurant_name = dbmanager.GetRestaurantNameFromId(restaurant_id);
                     menu_list = dbmanager.GetRestaurantMenu(restaurant_name);
                     //sending restuarant_menu
-                    foreach (Menu m in menu_list)
+                    //foreach (Menu m in menu_list)
                     {
-                        string menu_data_json = JsonConvert.SerializeObject(m);
+                        string menu_data_json = JsonConvert.SerializeObject(menu_list);
                         menu_data_json += "\r\n";
-                        byte[] dataWrite = Encoding.Default.GetBytes(menu_data_json);
+                        Console.WriteLine("menu_data_json : " + menu_data_json);
+                        byte[] dataWrite = Encoding.UTF8.GetBytes(menu_data_json);
                         stream.Write(dataWrite, 0, dataWrite.Length);
-
-
                     }
                     string end_menu = "end_menu\r\n";
-                    byte[] end_menu_dataWrite = Encoding.Default.GetBytes(end_menu);
+                    byte[] end_menu_dataWrite = Encoding.UTF8.GetBytes(end_menu);
                     stream.Write(end_menu_dataWrite, 0, end_menu_dataWrite.Length);
                 }
                 
@@ -107,7 +112,7 @@ namespace POSserver
             try
             {
                 //ip주소를 나타내는 객체 생성. TcpListener생성시 인자로 사용
-                IPAddress ipAd = IPAddress.Parse("127.0.0.1");
+                IPAddress ipAd = IPAddress.Parse("155.230.52.66");
 
                 //TcpListener class를 이용하여 클라이언트 연결 받아 들임
                 tcpListener = new TcpListener(ipAd, 5001);
