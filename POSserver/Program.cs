@@ -57,9 +57,15 @@ namespace POSserver
                     }
                     jobj = JObject.Parse(str);
                     string restaurant_id = jobj["restaurant_id"].ToString();
+                    string restaurant_name_from_client = jobj["restaurant_name"].ToString();
                     table_num = jobj["table_num"].ToString();
                     Console.WriteLine("restaurant_id : " + restaurant_id);
                     restaurant_name = dbmanager.GetRestaurantNameFromId(restaurant_id);
+                    if(!restaurant_name.Equals(restaurant_name_from_client)) //클라이언트로부터 받은 식당이름과 데이터베이스의 식당 이름이 다를경우
+                    {
+                        Console.WriteLine("no match restaurant_name\n");
+                        break;
+                    }
                     menu_list = dbmanager.GetRestaurantMenu(restaurant_name);
                     //sending restuarant_menu
                     //foreach (Menu m in menu_list)
@@ -119,6 +125,7 @@ namespace POSserver
                 tcpListener.Start();
 
                 Console.WriteLine("멀티스레드 Test 창 :Waiting for connections...");
+                Console.WriteLine("ver 0.0.1");
 
                 while (true)
                 {
