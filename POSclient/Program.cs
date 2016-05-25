@@ -16,7 +16,7 @@ class POSclient
         {
             //LocalHost에 지정포트로 TCP Connection생성 후 데이터 송수신 스트림 얻음
             client = new TcpClient();
-            client.Connect("49.143.93.120", 5001);
+            client.Connect("127.0.0.1", 5001);
             NetworkStream writeStream = client.GetStream();
 
             Encoding encode = System.Text.Encoding.GetEncoding("utf-8");
@@ -26,10 +26,11 @@ class POSclient
             //("2 : 김밥천국");
             //("3 : 봉봉치킨");
             //("4 : 맘스터치");
-            Console.WriteLine("봉구스 밥버거에 오신 것을 환영합니다");
+            Console.WriteLine("봉구스밥버거에 오신 것을 환영합니다");
+            Console.WriteLine("4번 테이블 입니다.");
             //보낼 데이터를 읽어 Default형식의 바이트 스트림으로 변환
 
-            string str = Console.ReadLine();
+            string str = "{ \"restaurant_name\":\"봉구스밥버거\",\"restaurant_id\":1,\"table_num\":4}";
             str += "\r\n";
             byte[] data = Encoding.Default.GetBytes(str);
             writeStream.Write(data, 0, data.Length);
