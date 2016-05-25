@@ -9,10 +9,16 @@ class Menu
 {
     public string name { get; set; }
     public string price { get; set; }
+    public int num { get; set; }
     public Menu(string name,string price)
     {
         this.name = name;
         this.price = price;
+    }
+    public Menu(string name, int num)
+    {
+        this.name = name;
+        this.num = num;
     }
 }
 
