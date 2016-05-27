@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -82,6 +83,48 @@ namespace POSserver
             }
             reader.Close();
             return list;
+        }
+        public int InsertMenuList(ArrayList menuName, ArrayList menuNum, int restaurant_id, int order_id, int table_num)
+        {
+            for (int i = 0; i < menuName.Count; i++)
+            {
+                String query = "select menu_id from menu where menu.menu_name='" + menuName[i].ToString() + "'";
+                MySqlCommand command = new MySqlCommand(query, conn);
+                MySqlDataReader reader = command.ExecuteReader();
+                int menu_id = -1;
+                while (reader.Read())//리더에 데이터가 있으면.
+                {
+                     menu_id = System.Convert.ToInt32(reader["menu_id"].ToString());
+
+                }
+                reader.Close();
+
+                query = "insert into order_(order_id, restaurant_id, order_time, menu_id, num_of_order, payment_index, table_num) values (@order_id, @restaurant_id, @order_time, @menu_id, @num_of_order, @payment_index, @table_num)";
+                command = new MySqlCommand(query, conn);
+
+                command.Parameters.Add("@order_id", MySqlDbType.Int32, order_id++);
+                command.Parameters.Add("@restaurant_id", MySqlDbType.Int32, restaurant_id);
+                command.Parameters.AddWithValue("@order_time", DateTime.Now);
+                command.Parameters.Add("@menu_id", MySqlDbType.Int32, menu_id);
+                command.Parameters.Add("@num_of_order", MySqlDbType.Int32, System.Convert.ToInt32(menuNum[i].ToString()));
+                command.Parameters.Add("@payment_index", MySqlDbType.Int32, 0);
+                command.Parameters.Add("@talbe_num", MySqlDbType.Int32, table_num);
+
+                command.ExecuteNonQuery();
+            }
+
+            return order_id;
+        }
+
+        public void payment(int order_id)
+        {
+            String query = "update order_ set payment_inex=@payment_index where order_id=@order_id";
+            MySqlCommand command = new MySqlCommand(query, conn);
+
+            command.Parameters.Add("@payment_index", MySqlDbType.Int32, 1);
+            command.Parameters.Add("@order_id", MySqlDbType.Int32, order_id);
+
+            command.ExecuteNonQuery();
         }
     }
 }

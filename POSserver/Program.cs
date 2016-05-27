@@ -5,6 +5,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
+using System.Collections;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using System.Linq;
@@ -28,6 +29,7 @@ namespace POSserver
             LinkedList<Menu> menu_list = null;
             JObject jobj = null;
             string table_num = null;
+            int order_num = 1;
             try
             {
                 //client의 접속이 올때까지 block되는 부분(Thread)
@@ -79,6 +81,59 @@ namespace POSserver
                     string end_menu = "end_menu\r\n";
                     byte[] end_menu_dataWrite = Encoding.UTF8.GetBytes(end_menu);
                     stream.Write(end_menu_dataWrite, 0, end_menu_dataWrite.Length);
+
+                    bool orderProcess = true;
+                    while (orderProcess)
+                    {
+                        str = reader.ReadLine(); // menu function
+                        if (str.IndexOf("<EOF>") > -1)
+                        {
+                            Console.WriteLine("Bye Bye");
+                            break;
+                        }
+                        jobj = JObject.Parse(str);
+                        string flagStr = jobj["flag"].ToString();
+                        int flag = System.Convert.ToInt32(flagStr);
+
+                        switch (flag)
+                        {
+                            case 1: // order menu
+                                ArrayList menuName = new ArrayList();
+                                ArrayList menuNum = new ArrayList();
+
+                                Array menuList = jobj["menu_list"].ToArray();
+                                
+                                for (int i = 0; i < menuList.Length; i++)
+                                {
+                                    JObject menuJobj = JObject.Parse(menuList.GetValue(i).ToString());
+                                    menuName.Add(menuJobj["name"].ToString());
+                                    menuNum.Add(menuJobj["num"].ToString());
+                                }
+
+                                order_num = dbmanager.InsertMenuList(menuName, menuNum, System.Convert.ToInt32(restaurant_id), order_num, System.Convert.ToInt32(table_num));
+                                break;
+                            case 2: // payment
+                                string orderNumberStr = jobj["orderNumber"].ToString();
+                                int orderNumber = System.Convert.ToInt32(orderNumberStr);
+                                dbmanager.payment(orderNumber);
+
+                                orderProcess = false;
+
+                                break;
+                            case 3: // adjust menu
+                                // need implement
+                                break;
+                            default: // error
+                                string err = "Flag parse error\r\n";
+                                byte[] err_dataWrite = Encoding.UTF8.GetBytes(err);
+                                stream.Write(err_dataWrite, 0, err_dataWrite.Length);
+                                orderProcess = false;
+                                break;
+                        }
+
+
+                    } 
+
                 }
                 
             }
