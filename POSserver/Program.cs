@@ -111,6 +111,7 @@ namespace POSserver
                                 }
                                 
                                 order_list = dbmanager.InsertMenuList(menuName, menuNum, System.Convert.ToInt32(restaurant_id), ref order_num, System.Convert.ToInt32(table_num));
+                                
                                 String order_data_json = JsonConvert.SerializeObject(order_list);
                                 order_data_json += "\r\n";
                                 Console.WriteLine("order_data_json : " + order_data_json);
@@ -126,7 +127,19 @@ namespace POSserver
 
                                 break;
                             case 3: // adjust menu
-                                // need implement
+                                ArrayList order = new ArrayList();
+                                Array orderList = jobj["menu_list"].ToArray();
+
+
+                                for (int i = 0; i < orderList.Length; i++)
+                                {
+                                    JObject menuJobj = JObject.Parse(orderList.GetValue(i).ToString());
+                                    Order temp = new Order(menuJobj["orderNumber"].ToString(), menuJobj["name"].ToString(), menuJobj["num"].ToString());
+
+                                    order.Add(temp);
+                                }
+
+                                dbmanager.adjustMenu(order);
                                 break;
                             default: // error
                                 string err = "Flag parse error\r\n";

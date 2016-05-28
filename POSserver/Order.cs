@@ -8,13 +8,13 @@ namespace POSserver
 {
     class Order
     {
-        public string orderNum { get; set; }
-        public string name { get; set; }
+        public string orderNumber { get; set; }
+        public string menuName { get; set; }
         public string menuNum { get; set; }
-        public Order(string orderNum, string name, string menuNum)
+        public Order(string orderNumber, string menuName, string menuNum)
         {
-            this.orderNum = orderNum;
-            this.name = name;
+            this.orderNumber = orderNumber;
+            this.menuName = menuName;
             this.menuNum = menuNum;
         }
     }

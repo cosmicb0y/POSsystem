@@ -131,5 +131,32 @@ namespace POSserver
 
             command.ExecuteNonQuery();
         }
+
+        public void adjustMenu(ArrayList menu)
+        {
+            for (int i = 0; i < menu.Count; i++)
+            {
+                Order temp = (Order)menu[i];
+                String query = "select menu_id from menu where menu.menu_name='" + temp.menuName + "'";
+                MySqlCommand command = new MySqlCommand(query, conn);
+                MySqlDataReader reader = command.ExecuteReader();
+                int menu_id = -1;
+                while (reader.Read())//리더에 데이터가 있으면.
+                {
+                    menu_id = System.Convert.ToInt32(reader["menu_id"].ToString());
+
+                }
+                reader.Close();
+
+
+                query = "update order_ set menu_id=@menu_id, num_of_order=@num_of_order where order_id=@order_id";
+                command = new MySqlCommand(query, conn);
+                command.Parameters.Add("@menu_id", MySqlDbType.Int32, menu_id);
+                command.Parameters.Add("@num_of_order", MySqlDbType.Int32, System.Convert.ToInt32(temp.menuNum));
+                command.Parameters.Add("@order_id", MySqlDbType.Int32, System.Convert.ToInt32(temp.orderNumber));
+
+                command.ExecuteNonQuery();
+            }
+        }
     }
 }
