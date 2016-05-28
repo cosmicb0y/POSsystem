@@ -104,13 +104,13 @@ namespace POSserver
                 command = new MySqlCommand(query, conn);
 
                 order_id++;
-                command.Parameters.Add("@order_id", MySqlDbType.Int32, order_id);
-                command.Parameters.Add("@restaurant_id", MySqlDbType.Int32, restaurant_id);
+                command.Parameters.Add("@order_id", MySqlDbType.Int32).Value = order_id;
+                command.Parameters.Add("@restaurant_id", MySqlDbType.Int32).Value = restaurant_id;
                 command.Parameters.AddWithValue("@order_time", DateTime.Now);
-                command.Parameters.Add("@menu_id", MySqlDbType.Int32, menu_id);
-                command.Parameters.Add("@num_of_order", MySqlDbType.Int32, System.Convert.ToInt32(menuNum[i].ToString()));
-              //  command.Parameters.Add("@payment_index", MySqlDbType.Int32, 0);
-                command.Parameters.Add("@table_num", MySqlDbType.Int32, table_num);
+                command.Parameters.Add("@menu_id", MySqlDbType.Int32).Value = menu_id;
+                command.Parameters.Add("@num_of_order", MySqlDbType.Int32).Value = System.Convert.ToInt32(menuNum[i].ToString());
+                command.Parameters.Add("@payment_index", MySqlDbType.Int32).Value = 0;
+                command.Parameters.Add("@table_num", MySqlDbType.Int32).Value = table_num;
 
                 Order order = new Order(order_id.ToString(), menuName[i].ToString(), menuNum[i].ToString());
                 list.AddLast(order);
@@ -126,8 +126,8 @@ namespace POSserver
             String query = "update order_ set payment_inex=@payment_index where order_id=@order_id";
             MySqlCommand command = new MySqlCommand(query, conn);
 
-            command.Parameters.Add("@payment_index", MySqlDbType.Int32, 1);
-            command.Parameters.Add("@order_id", MySqlDbType.Int32, order_id);
+            command.Parameters.Add("@payment_index", MySqlDbType.Int32).Value = 1;
+            command.Parameters.Add("@order_id", MySqlDbType.Int32).Value = order_id;
 
             command.ExecuteNonQuery();
         }
@@ -151,9 +151,9 @@ namespace POSserver
 
                 query = "update order_ set menu_id=@menu_id, num_of_order=@num_of_order where order_id=@order_id";
                 command = new MySqlCommand(query, conn);
-                command.Parameters.Add("@menu_id", MySqlDbType.Int32, menu_id);
-                command.Parameters.Add("@num_of_order", MySqlDbType.Int32, System.Convert.ToInt32(temp.menuNum));
-                command.Parameters.Add("@order_id", MySqlDbType.Int32, System.Convert.ToInt32(temp.orderNumber));
+                command.Parameters.Add("@menu_id", MySqlDbType.Int32).Value = menu_id;
+                command.Parameters.Add("@num_of_order", MySqlDbType.Int32).Value = System.Convert.ToInt32(temp.menuNum);
+                command.Parameters.Add("@order_id", MySqlDbType.Int32).Value = System.Convert.ToInt32(temp.orderNumber);
 
                 command.ExecuteNonQuery();
             }
