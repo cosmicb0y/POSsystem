@@ -84,8 +84,9 @@ namespace POSserver
             reader.Close();
             return list;
         }
-        public int InsertMenuList(ArrayList menuName, ArrayList menuNum, int restaurant_id, int order_id, int table_num)
+        public LinkedList<Order> InsertMenuList(ArrayList menuName, ArrayList menuNum, int restaurant_id, ref int order_id, int table_num)
         {
+            LinkedList < Order > list = new LinkedList<Order>();
             for (int i = 0; i < menuName.Count; i++)
             {
                 String query = "select menu_id from menu where menu.menu_name='" + menuName[i].ToString() + "'";
@@ -102,7 +103,8 @@ namespace POSserver
                 query = "insert into order_(order_id, restaurant_id, order_time, menu_id, num_of_order, payment_index, table_num) values (@order_id, @restaurant_id, @order_time, @menu_id, @num_of_order, @payment_index, @table_num)";
                 command = new MySqlCommand(query, conn);
 
-                command.Parameters.Add("@order_id", MySqlDbType.Int32, order_id++);
+                order_id++;
+                command.Parameters.Add("@order_id", MySqlDbType.Int32, order_id);
                 command.Parameters.Add("@restaurant_id", MySqlDbType.Int32, restaurant_id);
                 command.Parameters.AddWithValue("@order_time", DateTime.Now);
                 command.Parameters.Add("@menu_id", MySqlDbType.Int32, menu_id);
@@ -110,10 +112,13 @@ namespace POSserver
                 command.Parameters.Add("@payment_index", MySqlDbType.Int32, 0);
                 command.Parameters.Add("@talbe_num", MySqlDbType.Int32, table_num);
 
+                Order order = new Order(order_id.ToString(), menuName[i].ToString(), menuNum[i].ToString());
+                list.AddLast(order);
+
                 command.ExecuteNonQuery();
             }
 
-            return order_id;
+            return list;
         }
 
         public void payment(int order_id)

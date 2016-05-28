@@ -10,7 +10,6 @@ using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -29,7 +28,7 @@ namespace POSserver
             LinkedList<Menu> menu_list = null;
             JObject jobj = null;
             string table_num = null;
-            int order_num = 1;
+            int order_num = 0;
             try
             {
                 //client의 접속이 올때까지 block되는 부분(Thread)
@@ -102,15 +101,21 @@ namespace POSserver
                                 ArrayList menuNum = new ArrayList();
 
                                 Array menuList = jobj["menu_list"].ToArray();
-                                
+                                LinkedList<Order> order_list = null;
+
                                 for (int i = 0; i < menuList.Length; i++)
                                 {
                                     JObject menuJobj = JObject.Parse(menuList.GetValue(i).ToString());
                                     menuName.Add(menuJobj["name"].ToString());
                                     menuNum.Add(menuJobj["num"].ToString());
                                 }
-
-                                order_num = dbmanager.InsertMenuList(menuName, menuNum, System.Convert.ToInt32(restaurant_id), order_num, System.Convert.ToInt32(table_num));
+                                
+                                order_list = dbmanager.InsertMenuList(menuName, menuNum, System.Convert.ToInt32(restaurant_id), ref order_num, System.Convert.ToInt32(table_num));
+                                String order_data_json = JsonConvert.SerializeObject(order_list);
+                                order_data_json += "\r\n";
+                                Console.WriteLine("order_data_json : " + order_data_json);
+                                byte[] dataWrite = Encoding.UTF8.GetBytes(order_data_json);
+                                stream.Write(dataWrite, 0, dataWrite.Length);
                                 break;
                             case 2: // payment
                                 string orderNumberStr = jobj["orderNumber"].ToString();
