@@ -157,7 +157,7 @@ namespace POSserver
             }
             catch (Exception e)
             {
-                //   Console.WriteLine(e.ToString());
+                   Console.WriteLine(e.ToString());
             }
             finally
             {
@@ -191,7 +191,7 @@ namespace POSserver
             try
             {
                 //ip주소를 나타내는 객체 생성. TcpListener생성시 인자로 사용
-                IPAddress ipAd = IPAddress.Parse("155.230.52.66");
+                IPAddress ipAd = IPAddress.Parse("127.0.0.1");
 
                 //TcpListener class를 이용하여 클라이언트 연결 받아 들임
                 tcpListener = new TcpListener(ipAd, 5001);

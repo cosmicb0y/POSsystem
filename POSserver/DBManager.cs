@@ -100,7 +100,7 @@ namespace POSserver
                 }
                 reader.Close();
 
-                query = "insert into order_(order_id, restaurant_id, order_time, menu_id, num_of_order, payment_index, table_num) values (@order_id, @restaurant_id, @order_time, @menu_id, @num_of_order, @payment_index, @table_num)";
+                query = "insert into order_(order_id, restaurant_id, order_time, menu_id, num_of_order, payment_index, table_num) values (@order_id, @restaurant_id, @order_time, @menu_id, @num_of_order, 0, @table_num)";
                 command = new MySqlCommand(query, conn);
 
                 order_id++;
@@ -109,8 +109,8 @@ namespace POSserver
                 command.Parameters.AddWithValue("@order_time", DateTime.Now);
                 command.Parameters.Add("@menu_id", MySqlDbType.Int32, menu_id);
                 command.Parameters.Add("@num_of_order", MySqlDbType.Int32, System.Convert.ToInt32(menuNum[i].ToString()));
-                command.Parameters.Add("@payment_index", MySqlDbType.Int32, 0);
-                command.Parameters.Add("@talbe_num", MySqlDbType.Int32, table_num);
+              //  command.Parameters.Add("@payment_index", MySqlDbType.Int32, 0);
+                command.Parameters.Add("@table_num", MySqlDbType.Int32, table_num);
 
                 Order order = new Order(order_id.ToString(), menuName[i].ToString(), menuNum[i].ToString());
                 list.AddLast(order);
