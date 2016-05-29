@@ -77,9 +77,9 @@ namespace POSserver
                         byte[] dataWrite = Encoding.UTF8.GetBytes(menu_data_json);
                         stream.Write(dataWrite, 0, dataWrite.Length);
                     }
-                    string end_menu = "end_menu\r\n";
-                    byte[] end_menu_dataWrite = Encoding.UTF8.GetBytes(end_menu);
-                    stream.Write(end_menu_dataWrite, 0, end_menu_dataWrite.Length);
+                    //string end_menu = "end_menu\r\n";
+                    //byte[] end_menu_dataWrite = Encoding.UTF8.GetBytes(end_menu);
+                    //stream.Write(end_menu_dataWrite, 0, end_menu_dataWrite.Length);
 
                     bool orderProcess = true;
                     while (orderProcess)
