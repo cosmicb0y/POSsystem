@@ -101,7 +101,7 @@ namespace POSserver
                                 ArrayList menuNum = new ArrayList();
 
                                 Array menuList = jobj["menu_list"].ToArray();
-                                LinkedList<Order> order_list = null;
+                                
 
                                 for (int i = 0; i < menuList.Length; i++)
                                 {
@@ -110,9 +110,11 @@ namespace POSserver
                                     menuNum.Add(menuJobj["num"].ToString());
                                 }
                                 
-                                order_list = dbmanager.InsertMenuList(menuName, menuNum, System.Convert.ToInt32(restaurant_id), ref order_num, System.Convert.ToInt32(table_num));
-                                
-                                String order_data_json = JsonConvert.SerializeObject(order_list);
+                                dbmanager.InsertMenuList(menuName, menuNum, System.Convert.ToInt32(restaurant_id), ref order_num, System.Convert.ToInt32(table_num));
+
+                                OrderNumber orderNumberToSend = new OrderNumber(order_num.ToString());
+    
+                                String order_data_json = JsonConvert.SerializeObject(orderNumberToSend);
                                 order_data_json += "\r\n";
                                 Console.WriteLine("order_data_json : " + order_data_json);
                                 byte[] dataWrite = Encoding.UTF8.GetBytes(order_data_json);

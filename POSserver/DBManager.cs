@@ -87,6 +87,7 @@ namespace POSserver
         public LinkedList<Order> InsertMenuList(ArrayList menuName, ArrayList menuNum, int restaurant_id, ref int order_id, int table_num)
         {
             LinkedList < Order > list = new LinkedList<Order>();
+            order_id++;
             for (int i = 0; i < menuName.Count; i++)
             {
                 String query = "select menu_id from menu where menu.menu_name='" + menuName[i].ToString() + "'";
@@ -103,7 +104,7 @@ namespace POSserver
                 query = "insert into order_(order_id, restaurant_id, order_time, menu_id, num_of_order, payment_index, table_num) values (@order_id, @restaurant_id, @order_time, @menu_id, @num_of_order, 0, @table_num)";
                 command = new MySqlCommand(query, conn);
 
-                order_id++;
+                
                 command.Parameters.Add("@order_id", MySqlDbType.Int32).Value = order_id;
                 command.Parameters.Add("@restaurant_id", MySqlDbType.Int32).Value = restaurant_id;
                 command.Parameters.AddWithValue("@order_time", DateTime.Now);
