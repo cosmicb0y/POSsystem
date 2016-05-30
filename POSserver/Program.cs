@@ -19,6 +19,7 @@ namespace POSserver
     {
         DBManager dbmanager = DBManager.Instance;
         public Socket clientSocket;
+        int order_num = 0;
         public void runClient()
         {
             NetworkStream stream = null;
@@ -28,7 +29,7 @@ namespace POSserver
             LinkedList<Menu> menu_list = null;
             JObject jobj = null;
             string table_num = null;
-            int order_num = 0;
+            
             try
             {
                 //client의 접속이 올때까지 block되는 부분(Thread)
@@ -90,10 +91,11 @@ namespace POSserver
                             Console.WriteLine("Bye Bye");
                             break;
                         }
+                        Console.WriteLine("클라가 보낸거 : " + str);
                         jobj = JObject.Parse(str);
                         string flagStr = jobj["flag"].ToString();
                         int flag = System.Convert.ToInt32(flagStr);
-
+                       
                         switch (flag)
                         {
                             case 1: // order menu
@@ -110,9 +112,9 @@ namespace POSserver
                                     menuNum.Add(menuJobj["num"].ToString());
                                 }
                                 
-                                dbmanager.InsertMenuList(menuName, menuNum, System.Convert.ToInt32(restaurant_id), ref order_num, System.Convert.ToInt32(table_num));
-
-                                OrderNumber orderNumberToSend = new OrderNumber(order_num.ToString());
+                                dbmanager.InsertMenuList(menuName, menuNum, System.Convert.ToInt32(restaurant_id), ref EchoServer.order_num, System.Convert.ToInt32(table_num));
+                                Console.WriteLine("효원이가 원하는 order_num : " + EchoServer.order_num);
+                                OrderNumber orderNumberToSend = new OrderNumber(EchoServer.order_num.ToString());
     
                                 String order_data_json = JsonConvert.SerializeObject(orderNumberToSend);
                                 order_data_json += "\r\n";
@@ -126,8 +128,11 @@ namespace POSserver
                                 dbmanager.payment(orderNumber);
 
                                 orderProcess = false;
+                               
+                                dataWrite = Encoding.UTF8.GetBytes("{\"orderConfirm\":\"true\"}");
+                                stream.Write(dataWrite, 0, dataWrite.Length);
 
-                                break;
+                                return;
                             case 3: // adjust menu
                                 ArrayList order = new ArrayList();
                                 Array orderList = jobj["menu_list"].ToArray();
@@ -142,6 +147,8 @@ namespace POSserver
                                 }
 
                                 dbmanager.adjustMenu(order);
+                                dataWrite = Encoding.UTF8.GetBytes("{\"modify\":\"true\"}");
+                                stream.Write(dataWrite, 0, dataWrite.Length);
                                 break;
                             default: // error
                                 string err = "Flag parse error\r\n";
@@ -170,6 +177,7 @@ namespace POSserver
 
     public class EchoServer
     {
+        public static int order_num = 0;
         DBManager dbmanager = DBManager.Instance;
         public static void Main(string[] args)
         {
@@ -193,7 +201,7 @@ namespace POSserver
             try
             {
                 //ip주소를 나타내는 객체 생성. TcpListener생성시 인자로 사용
-                IPAddress ipAd = IPAddress.Parse("127.0.0.1");
+                IPAddress ipAd = IPAddress.Parse("155.230.52.66");
 
                 //TcpListener class를 이용하여 클라이언트 연결 받아 들임
                 tcpListener = new TcpListener(ipAd, 5001);

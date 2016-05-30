@@ -124,7 +124,7 @@ namespace POSserver
 
         public void payment(int order_id)
         {
-            String query = "update order_ set payment_inex=@payment_index where order_id=@order_id";
+            String query = "update order_ set payment_index=@payment_index where order_id=@order_id";
             MySqlCommand command = new MySqlCommand(query, conn);
 
             command.Parameters.Add("@payment_index", MySqlDbType.Int32).Value = 1;
@@ -150,7 +150,7 @@ namespace POSserver
                 reader.Close();
 
 
-                query = "update order_ set menu_id=@menu_id, num_of_order=@num_of_order where order_id=@order_id";
+                query = "update order_ set num_of_order=@num_of_order where order_id=@order_id and menu_id=@menu_id";
                 command = new MySqlCommand(query, conn);
                 command.Parameters.Add("@menu_id", MySqlDbType.Int32).Value = menu_id;
                 command.Parameters.Add("@num_of_order", MySqlDbType.Int32).Value = System.Convert.ToInt32(temp.menuNum);
