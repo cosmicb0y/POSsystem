@@ -5,11 +5,11 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading;
 using System.Windows.Forms;
+using System.Collections;
 using MySql.Data.MySqlClient;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using System.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
@@ -19,6 +19,7 @@ namespace POSserver
     {
         DBManager dbmanager = DBManager.Instance;
         public Socket clientSocket;
+        int order_num = 0;
         public void runClient()
         {
             NetworkStream stream = null;
@@ -28,6 +29,7 @@ namespace POSserver
             LinkedList<Menu> menu_list = null;
             JObject jobj = null;
             string table_num = null;
+            
             try
             {
                 //client의 접속이 올때까지 block되는 부분(Thread)
@@ -76,15 +78,95 @@ namespace POSserver
                         byte[] dataWrite = Encoding.UTF8.GetBytes(menu_data_json);
                         stream.Write(dataWrite, 0, dataWrite.Length);
                     }
-                    string end_menu = "end_menu\r\n";
-                    byte[] end_menu_dataWrite = Encoding.UTF8.GetBytes(end_menu);
-                    stream.Write(end_menu_dataWrite, 0, end_menu_dataWrite.Length);
+                    //string end_menu = "end_menu\r\n";
+                    //byte[] end_menu_dataWrite = Encoding.UTF8.GetBytes(end_menu);
+                    //stream.Write(end_menu_dataWrite, 0, end_menu_dataWrite.Length);
+
+                    bool orderProcess = true;
+                    while (orderProcess)
+                    {
+                        str = reader.ReadLine(); // menu function
+                        if (str.IndexOf("<EOF>") > -1)
+                        {
+                            Console.WriteLine("Bye Bye");
+                            break;
+                        }
+                        Console.WriteLine("클라가 보낸거 : " + str);
+                        jobj = JObject.Parse(str);
+                        string flagStr = jobj["flag"].ToString();
+                        int flag = System.Convert.ToInt32(flagStr);
+                       
+                        switch (flag)
+                        {
+                            case 1: // order menu
+                                ArrayList menuName = new ArrayList();
+                                ArrayList menuNum = new ArrayList();
+
+                                Array menuList = jobj["menu_list"].ToArray();
+                                
+
+                                for (int i = 0; i < menuList.Length; i++)
+                                {
+                                    JObject menuJobj = JObject.Parse(menuList.GetValue(i).ToString());
+                                    menuName.Add(menuJobj["name"].ToString());
+                                    menuNum.Add(menuJobj["num"].ToString());
+                                }
+                                
+                                dbmanager.InsertMenuList(menuName, menuNum, System.Convert.ToInt32(restaurant_id), ref EchoServer.order_num, System.Convert.ToInt32(table_num));
+                                Console.WriteLine("효원이가 원하는 order_num : " + EchoServer.order_num);
+                                OrderNumber orderNumberToSend = new OrderNumber(EchoServer.order_num.ToString());
+    
+                                String order_data_json = JsonConvert.SerializeObject(orderNumberToSend);
+                                order_data_json += "\r\n";
+                                Console.WriteLine("order_data_json : " + order_data_json);
+                                byte[] dataWrite = Encoding.UTF8.GetBytes(order_data_json);
+                                stream.Write(dataWrite, 0, dataWrite.Length);
+                                break;
+                            case 2: // payment
+                                string orderNumberStr = jobj["orderNumber"].ToString();
+                                int orderNumber = System.Convert.ToInt32(orderNumberStr);
+                                dbmanager.payment(orderNumber);
+
+                                orderProcess = false;
+                               
+                                dataWrite = Encoding.UTF8.GetBytes("{\"orderConfirm\":\"true\"}");
+                                stream.Write(dataWrite, 0, dataWrite.Length);
+
+                                return;
+                            case 3: // adjust menu
+                                ArrayList order = new ArrayList();
+                                Array orderList = jobj["menu_list"].ToArray();
+
+
+                                for (int i = 0; i < orderList.Length; i++)
+                                {
+                                    JObject menuJobj = JObject.Parse(orderList.GetValue(i).ToString());
+                                    Order temp = new Order(menuJobj["orderNumber"].ToString(), menuJobj["name"].ToString(), menuJobj["num"].ToString());
+
+                                    order.Add(temp);
+                                }
+
+                                dbmanager.adjustMenu(order);
+                                dataWrite = Encoding.UTF8.GetBytes("{\"modify\":\"true\"}");
+                                stream.Write(dataWrite, 0, dataWrite.Length);
+                                break;
+                            default: // error
+                                string err = "Flag parse error\r\n";
+                                byte[] err_dataWrite = Encoding.UTF8.GetBytes(err);
+                                stream.Write(err_dataWrite, 0, err_dataWrite.Length);
+                                orderProcess = false;
+                                break;
+                        }
+
+
+                    } 
+
                 }
                 
             }
             catch (Exception e)
             {
-                //   Console.WriteLine(e.ToString());
+                   Console.WriteLine(e.ToString());
             }
             finally
             {
@@ -95,6 +177,7 @@ namespace POSserver
 
     public class EchoServer
     {
+        public static int order_num = 0;
         DBManager dbmanager = DBManager.Instance;
         public static void Main(string[] args)
         {

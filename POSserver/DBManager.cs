@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -82,6 +83,81 @@ namespace POSserver
             }
             reader.Close();
             return list;
+        }
+        public LinkedList<Order> InsertMenuList(ArrayList menuName, ArrayList menuNum, int restaurant_id, ref int order_id, int table_num)
+        {
+            LinkedList < Order > list = new LinkedList<Order>();
+            order_id++;
+            for (int i = 0; i < menuName.Count; i++)
+            {
+                String query = "select menu_id from menu where menu.menu_name='" + menuName[i].ToString() + "'";
+                MySqlCommand command = new MySqlCommand(query, conn);
+                MySqlDataReader reader = command.ExecuteReader();
+                int menu_id = -1;
+                while (reader.Read())//리더에 데이터가 있으면.
+                {
+                     menu_id = System.Convert.ToInt32(reader["menu_id"].ToString());
+
+                }
+                reader.Close();
+
+                query = "insert into order_(order_id, restaurant_id, order_time, menu_id, num_of_order, payment_index, table_num) values (@order_id, @restaurant_id, @order_time, @menu_id, @num_of_order, 0, @table_num)";
+                command = new MySqlCommand(query, conn);
+
+                
+                command.Parameters.Add("@order_id", MySqlDbType.Int32).Value = order_id;
+                command.Parameters.Add("@restaurant_id", MySqlDbType.Int32).Value = restaurant_id;
+                command.Parameters.AddWithValue("@order_time", DateTime.Now);
+                command.Parameters.Add("@menu_id", MySqlDbType.Int32).Value = menu_id;
+                command.Parameters.Add("@num_of_order", MySqlDbType.Int32).Value = System.Convert.ToInt32(menuNum[i].ToString());
+                command.Parameters.Add("@payment_index", MySqlDbType.Int32).Value = 0;
+                command.Parameters.Add("@table_num", MySqlDbType.Int32).Value = table_num;
+
+                Order order = new Order(order_id.ToString(), menuName[i].ToString(), menuNum[i].ToString());
+                list.AddLast(order);
+
+                command.ExecuteNonQuery();
+            }
+
+            return list;
+        }
+
+        public void payment(int order_id)
+        {
+            String query = "update order_ set payment_index=@payment_index where order_id=@order_id";
+            MySqlCommand command = new MySqlCommand(query, conn);
+
+            command.Parameters.Add("@payment_index", MySqlDbType.Int32).Value = 1;
+            command.Parameters.Add("@order_id", MySqlDbType.Int32).Value = order_id;
+
+            command.ExecuteNonQuery();
+        }
+
+        public void adjustMenu(ArrayList menu)
+        {
+            for (int i = 0; i < menu.Count; i++)
+            {
+                Order temp = (Order)menu[i];
+                String query = "select menu_id from menu where menu.menu_name='" + temp.menuName + "'";
+                MySqlCommand command = new MySqlCommand(query, conn);
+                MySqlDataReader reader = command.ExecuteReader();
+                int menu_id = -1;
+                while (reader.Read())//리더에 데이터가 있으면.
+                {
+                    menu_id = System.Convert.ToInt32(reader["menu_id"].ToString());
+
+                }
+                reader.Close();
+
+
+                query = "update order_ set num_of_order=@num_of_order where order_id=@order_id and menu_id=@menu_id";
+                command = new MySqlCommand(query, conn);
+                command.Parameters.Add("@menu_id", MySqlDbType.Int32).Value = menu_id;
+                command.Parameters.Add("@num_of_order", MySqlDbType.Int32).Value = System.Convert.ToInt32(temp.menuNum);
+                command.Parameters.Add("@order_id", MySqlDbType.Int32).Value = System.Convert.ToInt32(temp.orderNumber);
+
+                command.ExecuteNonQuery();
+            }
         }
     }
 }
