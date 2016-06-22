@@ -82,7 +82,12 @@ class POSclient
                 }
                 else if (select_index == 2)
                 {
-
+                    payment temp = new payment("1");
+                    string menu_number_json = JsonConvert.SerializeObject(temp);
+                    menu_number_json += "\r\n";
+                    data = Encoding.UTF8.GetBytes(menu_number_json);
+                    writeStream.Write(data, 0, data.Length);
+                    break;
                 }
             }
         }

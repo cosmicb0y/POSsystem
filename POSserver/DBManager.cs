@@ -84,7 +84,7 @@ namespace POSserver
             reader.Close();
             return list;
         }
-        public LinkedList<Order> InsertMenuList(ArrayList menuName, ArrayList menuNum, int restaurant_id, ref int order_id, int table_num)
+        public LinkedList<Order> InsertMenuList(ArrayList menuName, ArrayList menuNum, int restaurant_id, ref int order_id, int table_num, string phone_number)
         {
             LinkedList < Order > list = new LinkedList<Order>();
             order_id++;
@@ -101,7 +101,7 @@ namespace POSserver
                 }
                 reader.Close();
 
-                query = "insert into order_(order_id, restaurant_id, order_time, menu_id, num_of_order, payment_index, table_num) values (@order_id, @restaurant_id, @order_time, @menu_id, @num_of_order, 0, @table_num)";
+                query = "insert into order_(order_id, restaurant_id, order_time, menu_id, num_of_order, payment_index, table_num, phone_number) values (@order_id, @restaurant_id, @order_time, @menu_id, @num_of_order, 0, @table_num, @phone_number)";
                 command = new MySqlCommand(query, conn);
 
                 
@@ -112,6 +112,8 @@ namespace POSserver
                 command.Parameters.Add("@num_of_order", MySqlDbType.Int32).Value = System.Convert.ToInt32(menuNum[i].ToString());
                 command.Parameters.Add("@payment_index", MySqlDbType.Int32).Value = 0;
                 command.Parameters.Add("@table_num", MySqlDbType.Int32).Value = table_num;
+                command.Parameters.Add("@phone_number", MySqlDbType.VarChar).Value = phone_number;
+
 
                 Order order = new Order(order_id.ToString(), menuName[i].ToString(), menuNum[i].ToString());
                 list.AddLast(order);

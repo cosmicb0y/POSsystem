@@ -91,7 +91,7 @@ namespace POSserver
                             Console.WriteLine("Bye Bye");
                             break;
                         }
-                        Console.WriteLine("클라가 보낸거 : " + str);
+                        //Console.WriteLine("클라가 보낸거 : " + str);
                         jobj = JObject.Parse(str);
                         string flagStr = jobj["flag"].ToString();
                         int flag = System.Convert.ToInt32(flagStr);
@@ -103,6 +103,7 @@ namespace POSserver
                                 ArrayList menuNum = new ArrayList();
 
                                 Array menuList = jobj["menu_list"].ToArray();
+                                string phoneNumberStr = jobj["phone_number"].ToString();
                                 
 
                                 for (int i = 0; i < menuList.Length; i++)
@@ -112,8 +113,8 @@ namespace POSserver
                                     menuNum.Add(menuJobj["num"].ToString());
                                 }
                                 
-                                dbmanager.InsertMenuList(menuName, menuNum, System.Convert.ToInt32(restaurant_id), ref EchoServer.order_num, System.Convert.ToInt32(table_num));
-                                Console.WriteLine("효원이가 원하는 order_num : " + EchoServer.order_num);
+                                dbmanager.InsertMenuList(menuName, menuNum, System.Convert.ToInt32(restaurant_id), ref EchoServer.order_num, System.Convert.ToInt32(table_num), phoneNumberStr);
+                                //Console.WriteLine("효원이가 원하는 order_num : " + EchoServer.order_num);
                                 OrderNumber orderNumberToSend = new OrderNumber(EchoServer.order_num.ToString());
     
                                 String order_data_json = JsonConvert.SerializeObject(orderNumberToSend);
@@ -166,7 +167,7 @@ namespace POSserver
             }
             catch (Exception e)
             {
-                   Console.WriteLine(e.ToString());
+                  // Console.WriteLine(e.ToString());
             }
             finally
             {
@@ -201,7 +202,7 @@ namespace POSserver
             try
             {
                 //ip주소를 나타내는 객체 생성. TcpListener생성시 인자로 사용
-                IPAddress ipAd = IPAddress.Parse("155.230.52.66");
+                IPAddress ipAd = IPAddress.Parse("127.0.0.1");
 
                 //TcpListener class를 이용하여 클라이언트 연결 받아 들임
                 tcpListener = new TcpListener(ipAd, 5001);

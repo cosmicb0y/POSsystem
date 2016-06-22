@@ -50,6 +50,7 @@
     <Compile Include="Menu.cs" />
     <Compile Include="OrderList.cs" />
     <Compile Include="OrderMenu.cs" />
+    <Compile Include="payment.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
